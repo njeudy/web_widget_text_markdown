@@ -13,18 +13,18 @@ odoo.define('web.web_widget_text_markdown', function(require) {
     var _lt = core._lt;
 
     var accented_letters_mapping = {
-    'a': '[àáâãäå]',
-    'ae': 'æ',
-    'c': 'ç',
-    'e': '[èéêë]',
-    'i': '[ìíîï]',
-    'n': 'ñ',
-    'o': '[òóôõö]',
-    'oe': 'œ',
-    'u': '[ùúûűü]',
-    'y': '[ýÿ]',
-    ' ': '[()\\[\\]]',
-};
+        'a': '[àáâãäå]',
+        'ae': 'æ',
+        'c': 'ç',
+        'e': '[èéêë]',
+        'i': '[ìíîï]',
+        'n': 'ñ',
+        'o': '[òóôõö]',
+        'oe': 'œ',
+        'u': '[ùúûűü]',
+        'y': '[ýÿ]',
+        ' ': '[()\\[\\]]',
+    };
 
     // The MentionManager allows the Composer to register listeners. For each
     // listener, it detects if the user is currently typing a mention (starting by a
@@ -348,19 +348,19 @@ odoo.define('web.web_widget_text_markdown', function(require) {
                     html: true,
                     linkify: true,
                     typographer: true,
-                    highlight: function (str, lang) {
+                    highlight: function(str, lang) {
                         if (lang && hljs.getLanguage(lang)) {
-                          try {
-                            return hljs.highlight(lang, str).value;
-                          } catch (__) {}
+                            try {
+                                return hljs.highlight(lang, str).value;
+                            } catch (__) {}
                         }
 
                         try {
-                          return hljs.highlightAuto(str).value;
+                            return hljs.highlightAuto(str).value;
                         } catch (__) {}
 
                         return ''; // use external default escaping
-                  }
+                    }
                 });
 
                 this.md.use(markdownItAttrs);
@@ -382,7 +382,7 @@ odoo.define('web.web_widget_text_markdown', function(require) {
                 });
 
                 this.PartnerModel = new Model('res.partner');
-        this.ChannelModel = new Model('mail.channel');
+                this.ChannelModel = new Model('mail.channel');
             },
 
             on_keydown: function(event) {
@@ -464,7 +464,7 @@ odoo.define('web.web_widget_text_markdown', function(require) {
                     this.internal_set_value(
                         this.parse_value(
                             this.mention_manager.generate_links(this._get_raw_value())
-                            ));
+                        ));
                 }
             },
 
@@ -528,12 +528,12 @@ odoo.define('web.web_widget_text_markdown', function(require) {
                 this.mention_prefetched_partners = prefetched_partners;
             },
 
-            unaccent: function (str) {
-        _.each(accented_letters_mapping, function (value, key) {
-            str = str.replace(new RegExp(value, 'g'), key);
-        });
-        return str;
-    },
+            unaccent: function(str) {
+                _.each(accented_letters_mapping, function(value, key) {
+                    str = str.replace(new RegExp(value, 'g'), key);
+                });
+                return str;
+            },
 
             render_value: function() {
                 // Gets called at each redraw/save of widget
