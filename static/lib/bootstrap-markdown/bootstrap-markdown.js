@@ -882,8 +882,8 @@
     savable:false,
     width: 'inherit',
     height: 'inherit',
-    resize: 'none',
-    iconlibrary: 'glyph',
+    resize: 'vertical',
+    iconlibrary: 'fa',
     language: 'en',
     initialstate: 'editor',
 
