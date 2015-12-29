@@ -9,6 +9,9 @@ odoo.define('web.web_widget_text_markdown', function(require) {
     var formats = require('web.formats');
     var session = require('web.session');
 
+    var ace_call = require('website.ace_call');
+
+
     var QWeb = core.qweb;
     var _lt = core._lt;
 
@@ -333,7 +336,9 @@ odoo.define('web.web_widget_text_markdown', function(require) {
             },
 
             init: function(field_manager, node) {
+
                 this._super(field_manager, node);
+                ace_call.load()
                 this.$txt = false;
                 this.options = _.defaults(node || {}, {
                     context: {},
@@ -343,6 +348,9 @@ odoo.define('web.web_widget_text_markdown', function(require) {
                     mention_fetch_limit: 8,
                 });
                 this.context = this.options.context;
+
+                this.ace_mode = node.attrs['data-editor-mode'] !== undefined ? node.attrs['data-editor-mode'] : "xml";
+                this.ace_theme = node.attrs['data-editor-theme'] !== undefined ? node.attrs['data-editor-theme'] : "chrome";
 
                 this.md = markdownit({
                     html: true,
@@ -544,6 +552,8 @@ odoo.define('web.web_widget_text_markdown', function(require) {
                 if (!this.get("effective_readonly")) {
                     this.$txt.val(show_value);
                     this.$el.trigger('resize');
+                    this.$txt.asAceEditor();
+
                 } else {
                     var content = this.md.render(show_value)
                     this.$el.find('span[class="oe_form_text_content"]').html(content);
