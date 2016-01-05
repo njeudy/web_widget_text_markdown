@@ -151,12 +151,14 @@ odoo.define('web.web_widget_text_markdown', function(require) {
          */
         detect_delimiter: function() {
             var self = this;
-            var text_val = this.composer.$txt.val();
-            var cursor_position = this._get_selection_positions().start;
-            var left_string = text_val.substring(0, cursor_position);
+            var line_range = this.composer.ace_editor.selection.getLineRange()
+            var text_val = this.composer.ace_editor.session.getTextRange(line_range)
+
+            var cursor_position = this.composer.ace_editor.getCursorPosition();
+            var left_string = text_val.substring(0, cursor_position.column);
 
             function validate_keyword(delimiter) {
-                var search_str = text_val.substring(left_string.lastIndexOf(delimiter) - 1, cursor_position);
+                var search_str = text_val.substring(left_string.lastIndexOf(delimiter) - 1, cursor_position.column);
                 var pattern = "(^" + delimiter + "|(^\\s" + delimiter + "))";
                 var regex_start = new RegExp(pattern, "g");
                 search_str = search_str.replace(/^\s\s*|^[\n\r]/g, '');
@@ -328,11 +330,36 @@ odoo.define('web.web_widget_text_markdown', function(require) {
 
             template: 'FieldMarkDown',
             display_name: _lt('MarkDown'),
-            widget_class: 'oe_form_field_bootstrap_markdown',
+            widget_class: 'oe_form_field_markdown',
             events: {
                 'change textarea': 'store_dom_value',
-                'keydown .md-input': 'on_keydown',
-                'keyup .md-input': 'on_keyup',
+                'keydown .ace_text-input': 'on_keydown',
+                'keyup .ace_text-input': 'on_keyup',
+            },
+            match: function($textarea, $editor, editor) {
+                var height, id;
+                id = $editor.selector;
+                height = editor.getSession().getScreenLength() * editor.renderer.lineHeight;
+                $textarea.val(editor.getValue());
+                if (height < 150) {
+                    height = 150;
+                }
+
+                $(id).height(height.toString() + "px");
+                $(id + '-section').height(height.toString() + "px");
+                editor.resize();
+            },
+
+            makeId: function() {
+                var i, opt, str;
+                str = "";
+                opt = "abcdefghijklmnopqrstuvwxyz";
+                i = 1;
+                while (i < 16) {
+                    str += opt.charAt(Math.floor(Math.random() * opt.length));
+                    i++;
+                }
+                return 'editor-' + str;
             },
 
             init: function(field_manager, node) {
@@ -340,6 +367,9 @@ odoo.define('web.web_widget_text_markdown', function(require) {
                 this._super(field_manager, node);
                 ace_call.load()
                 this.$txt = false;
+                this.ace_editor_id = this.makeId()
+                this.ace_editor = false
+                this.$editor_ace_div = false
                 this.options = _.defaults(node || {}, {
                     context: {},
                     input_baseline: 18,
@@ -450,14 +480,32 @@ odoo.define('web.web_widget_text_markdown', function(require) {
                 // Gets called at each redraw of widget
                 //  - switching between read-only mode and edit mode
                 //  - BUT NOT when switching to next object.
-                this.$txt = this.$el.find('textarea[name="' + this.name + '"]');
+
                 if (!this.get('effective_readonly')) {
-                    this.$txt.markdown({
-                        autofocus: false,
-                        savable: false
+                    this.$textarea = this.$el.find('textarea[name="' + this.name + '"]');
+                    this.$textarea.css('visibility', 'hidden');
+                    this.$textarea.css('display', 'none');
+
+                    if (!this.ace_editor) {
+                        this.ace_editor = ace.edit(this.$el.find('#' + this.ace_editor_id)[0])
+                        this.ace_editor.setTheme('ace/theme/monokai');
+                        this.ace_editor.getSession().setUseWrapMode(true);
+                        this.ace_editor.getSession().setMode('ace/mode/xml');
+                        this.ace_editor.setFontSize(12);
+
+                    }
+                    this.$txt = this.$el.find('.ace_text-input')
+                    this.ace_editor.setValue(this.get_value());
+                    this.$editor_ace_div = this.$el.find('#' + this.ace_editor_id)
+                    this.$editor_ace_div.css({
+                      'margin-bottom': 30,
+                      'height': '150px',
                     });
+                    this.match(this.$txt, this.$editor_ace_div, this.ace_editor);
+                    //this.mention_manager.after(this.$('.md-editor'));
+                    this.$('.md-editor').after(this.mention_manager.$el[0]);
+
                 }
-                this.mention_manager.appendTo(this.$('.md-editor'));
                 this.old_value = null; // will trigger a redraw
             },
 
@@ -478,13 +526,14 @@ odoo.define('web.web_widget_text_markdown', function(require) {
 
             commit_value: function() {
                 this.store_dom_value();
+                this.ace_editor =  false;
                 return this._super();
             },
 
             _get_raw_value: function() {
-                if (this.$txt === false)
+                if (this.ace_editor === false)
                     return '';
-                return this.$txt.val();
+                return this.ace_editor.getValue();
             },
 
             // Mention
@@ -552,7 +601,7 @@ odoo.define('web.web_widget_text_markdown', function(require) {
                 if (!this.get("effective_readonly")) {
                     this.$txt.val(show_value);
                     this.$el.trigger('resize');
-                    this.$txt.asAceEditor();
+                    // initialise markdown ace editor
 
                 } else {
                     var content = this.md.render(show_value)

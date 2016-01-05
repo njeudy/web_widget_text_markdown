@@ -12,7 +12,6 @@
                 <script type="text/javascript" src="/website/static/lib/ace/ace.js"></script>
                 <script type="text/javascript" src="/website/static/lib/ace/theme-monokai.js"></script>
                 <script type="text/javascript" src="/website/static/lib/ace/mode-xml.js"></script>
-                <script type="text/javascript" src="/web_widget_text_markdown/static/lib/textarea-as-ace-editor/textarea-as-ace-editor.js"></script>
                 <script type="text/javascript" src="/web_widget_text_markdown/static/lib/markdown-it/markdown-it-attrs.js"></script>
                 <script type="text/javascript" src="/web_widget_text_markdown/static/lib/markdown-it/markdown-it.js"></script>
                 <script type="text/javascript" src="/web_widget_text_markdown/static/lib/bootstrap-markdown/bootstrap-markdown.js"></script>
