@@ -59,11 +59,12 @@ odoo.define('web.web_widget_text_markdown', function(require) {
                 this.md.use(markdownItAttrs);
 
             },
-            
+
             render_value: function() {
                 var show_value = this.format_value(this.get('value'), '');
                 if (!this.get("effective_readonly")) {
                     this.$txt.val(show_value);
+                    this.ace_editor.setValue(show_value);
                     this.$el.trigger('resize');
                 } else {
                     var content = this.md.render(show_value)
