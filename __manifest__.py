@@ -20,7 +20,7 @@
 
 {
     'name': 'Markdown text widget',
-    'version': '9.0.1.0.0',
+    'version': '10.0.1.0.0',
     'author': "Sudokeys,Odoo Community Association (OCA)",
     'maintainer': 'Sudokeys',
     'category': '',
